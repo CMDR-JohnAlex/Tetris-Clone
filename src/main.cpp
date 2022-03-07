@@ -6,6 +6,7 @@
 #include <random>
 #include <Windows.h>
 
+
 std::wstring tetromino[7];
 int nFieldWidth = 12;
 int nFieldHeight = 18;
