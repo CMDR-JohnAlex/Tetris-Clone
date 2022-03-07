@@ -6,7 +6,6 @@
 #include <random>
 #include <Windows.h>
 
-
 std::wstring tetromino[7];
 int nFieldWidth = 12;
 int nFieldHeight = 18;
@@ -15,20 +14,38 @@ unsigned char* pField = nullptr;
 int nScreenWidth = 120;			// Console Screen Size X (columns)
 int nScreenHeight = 30;			// Console Screen Size Y (rows)
 
-int rotate(int px, int py, int r)
+int rotate(int px, int py, int r) // Function for rotating the pieces
 {
+	int pieceIndex = 0;
 	switch (r % 4)
 	{
-	case 0: return py * 4 + px; // 0 degrees
-	case 1: return 12 + py - (px * 4); // 90 degrees
-	case 2: return 15 - (py * 4) - px; // 180 degrees
-	case 3: return 3 - py + (px * 4); // 270 degrees
+	case 0: // 0 degrees					//  0  1  2  3
+		pieceIndex = py * 4 + px;			//  4  5  6  7
+		break;								//  8  9 10 11
+											// 12 13 14 15
+
+	case 1: // 90 degrees					// 12  8  4  0
+		pieceIndex = 12 + py - (px * 4);	// 13  9  5  1
+		break;								// 14 10  6  2
+											// 15 11  7  3
+
+	case 2: // 180 degrees					// 15 14 13 12
+		pieceIndex = 15 - (py * 4) - px;	// 11 10  9  8
+		break;								//  7  6  5  4
+											//  3  2  1  0
+
+	case 3: // 270 degrees					//  3  7 11 15
+		pieceIndex = 3 - py + (px * 4);		//  2  6 10 14
+		break;								//  1  5  9 13
+											//  0  4  8 12
 	}
-	return 0;
+
+	return pieceIndex;
 }
 
 bool doesPieceFit(int nTetromino, int nRotation, int nPosX, int nPosY)
 {
+	// All Field cells >0 are occupied
 	for (int px = 0; px < 4; px++)
 		for (int py = 0; py < 4; py++)
 		{
@@ -38,12 +55,16 @@ bool doesPieceFit(int nTetromino, int nRotation, int nPosX, int nPosY)
 			// Get index into field
 			int fieldIndex = (nPosY + py) * nFieldWidth + (nPosX + px);
 
+			// Check that test is in bounds. Note out of bounds does
+			// not necessarily mean a fail, as the long vertical piece
+			// can have cells that lie outside the boundary, so we'll
+			// just ignore them
 			if (nPosX + px >= 0 && nPosX + px < nFieldWidth)
 			{
 				if (nPosY + py >= 0 && nPosY + py < nFieldHeight)
 				{
-					// Collision detection
-					if (tetromino[nTetromino][pieceIndex] == L'X' && pField[fieldIndex] != 0)
+					// In Bounds so do collision check
+					if (tetromino[nTetromino][pieceIndex] != L'.' && pField[fieldIndex] != 0)
 						return false; // Fail on first hit
 				}
 			}
@@ -63,10 +84,18 @@ int main(int argc, char* argv[])
 	std::cout << "   | |  __/ |_| |  | \\__ \\\n";
 	std::cout << "   |_|\\___|\\__|_|  |_|___/ Console Clone\n";
 	std::cout << "==========================================\n\n";
-	std::cout << "       Ready to play?\n\n";
+	std::cout << "            Ready to play?\n\n";
 	system("pause");
 	system("CLS");
 
+	// Create Screen Buffer
+	wchar_t* screen = new wchar_t[nScreenWidth * nScreenHeight];
+	for (int i = 0; i < nScreenWidth * nScreenHeight; i++) screen[i] = L' ';
+	HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+	SetConsoleActiveScreenBuffer(hConsole);
+	DWORD dwBytesWritten = 0;
+
+	// Create assets
 	tetromino[0].append(L"..X.");
 	tetromino[0].append(L"..X.");
 	tetromino[0].append(L"..X.");
@@ -107,41 +136,30 @@ int main(int argc, char* argv[])
 		for (int y = 0; y < nFieldHeight; y++)
 			pField[y * nFieldWidth + x] = (x == 0 || x == nFieldWidth - 1 || y == nFieldHeight - 1) ? 9 : 0;
 
-	wchar_t* screen = new wchar_t[nScreenWidth * nScreenHeight];
-	for (int i = 0; i < nScreenWidth * nScreenHeight; i++) screen[i] = L' ';
-	HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-	SetConsoleActiveScreenBuffer(hConsole);
-	DWORD dwBytesWritten = 0;
-
-	// Game logic variables
-	bool bGameOver = false;
-	
+	// Game logic
+	bool bKey[4];
 	int nCurrentPiece = 0;
 	int nCurrentRotation = 0;
 	int nCurrentX = nFieldWidth / 2;
 	int nCurrentY = 0;
-
-	bool bKey[4];
-	bool bRotateHold = false;
-
 	int nSpeed = 20;
 	int nSpeedCount = 0;
 	bool bForceDown = false;
+	bool bRotateHold = true;
 	int nPieceCount = 0;
 	int nScore = 0;
-
 	std::vector<int> vLines;
+	bool bGameOver = false;
 
-	while (!bGameOver) // Game loop
+	while (!bGameOver) // Main game loop
 	{
-		// GAME TIMING ============================================================================================================================
+		// TIMING =================================================================================================================================
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		//std::this_thread::sleep_for(50ms);
 		nSpeedCount++;
 		bForceDown = (nSpeedCount == nSpeed);
 
 		// INPUT ==================================================================================================================================
-		for (int k = 0; k < 4; k++)								// R   L   D Z
+		for (int k = 0; k < 4; k++)								//  R   L   D Z
 			bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("\x27\x25\x28Z"[k]))) != 0;
 
 		// GAME LOGIC =============================================================================================================================
@@ -149,6 +167,8 @@ int main(int argc, char* argv[])
 		nCurrentX += (bKey[0] && doesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX + 1, nCurrentY)) ? 1 : 0;
 		nCurrentX -= (bKey[1] && doesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX - 1, nCurrentY)) ? 1 : 0;
 		nCurrentY += (bKey[2] && doesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1)) ? 1 : 0;
+
+		// Rotate, but latch to stop wild spinning
 		if (bKey[3])
 		{
 			nCurrentRotation += (bRotateHold && doesPieceFit(nCurrentPiece, nCurrentRotation + 1, nCurrentX, nCurrentY)) ? 1 : 0;
@@ -186,14 +206,21 @@ int main(int argc, char* argv[])
 		nCurrentRotation += (bKey[3] && doesPieceFit(nCurrentPiece, nCurrentRotation + 1, nCurrentX, nCurrentY)) ? 1 : 0;
 		*/
 
-		// Test if piece can be moved down
+		// Force the piece down the playfield if it's time
 		if (bForceDown)
 		{
+			// Update difficulty every 50 pieces
+			nSpeedCount = 0;
+			nPieceCount++;
+			if (nPieceCount % 50 == 0)
+				if (nSpeed >= 10) nSpeed--;
+
+			// Test if piece can be moved down
 			if (doesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1))
 				nCurrentY++; // It can, so do it!
 			else
 			{
-				// It can't! So lock the current piece in the field
+				// It can't! Lock the piece in place
 				for (int px = 0; px < 4; px++)
 					for (int py = 0; py < 4; py++)
 						if (tetromino[nCurrentPiece][rotate(px, py, nCurrentRotation)] != L'.')
@@ -203,8 +230,8 @@ int main(int argc, char* argv[])
 				if (nPieceCount % 10 == 0)
 					if (nSpeed >= 10) nSpeed--;
 
-				// Check have we got any lines
-				for (int py = 0; py < 4; py ++)
+				// Check for lines
+				for (int py = 0; py < 4; py++)
 					if (nCurrentY + py < nFieldHeight - 1)
 					{
 						bool bLine = true;
@@ -227,7 +254,7 @@ int main(int argc, char* argv[])
 				nCurrentX = nFieldWidth / 2;
 				nCurrentY = 0;
 				nCurrentRotation = 0;
-				// nCurrentPiece = rand() % 7;
+				// nCurrentPiece = rand() % 7; // Old random code
 
 				// Get Random Number
 				std::random_device dev; // for seeding
@@ -246,16 +273,24 @@ int main(int argc, char* argv[])
 		// Draw Field
 		for (int x = 0; x < nFieldWidth; x++)
 			for (int y = 0; y < nFieldHeight; y++)
-				screen[(y + 2) * nScreenWidth + (x + 2)] = L" ■■■■■■■=#"[pField[y * nFieldWidth + x]]; // ■■■■■■■=# ABCDEFG=#
+				screen[(y + 2) * nScreenWidth + (x + 2)] = L" ■■■■■■■=#"[pField[y * nFieldWidth + x]]; // ■■■■■■■=# ABCDEFG=# ███████=#
 
 		// Draw Current Piece
 		for (int px = 0; px < 4; px++)
 			for (int py = 0; py < 4; py++)
 				if (tetromino[nCurrentPiece][rotate(px, py, nCurrentRotation)] != L'.')
-					screen[(nCurrentY + py + 2) * nScreenWidth + (nCurrentX + px + 2)] = 254;
+					screen[(nCurrentY + py + 2) * nScreenWidth + (nCurrentX + px + 2)] = nCurrentPiece + 65; // `█` = 219  `■` = 254 `ABCDEFG` = nCurrentPiece + 65
 
 		// Draw Score
 		swprintf_s(&screen[2 * nScreenWidth + nFieldWidth + 6], 16, L"SCORE: %8d", nScore);
+
+		// Draw Credits
+		swprintf_s(&screen[6  * nScreenWidth + nFieldWidth + 6], 14, L"Game made by:");
+		swprintf_s(&screen[7  * nScreenWidth + nFieldWidth + 6], 16, L" @CMDR-JohnAlex");
+		swprintf_s(&screen[9  * nScreenWidth + nFieldWidth + 6], 13, L"Tutorial by:");
+		swprintf_s(&screen[10 * nScreenWidth + nFieldWidth + 6],  9, L" Javidx9");
+		swprintf_s(&screen[12 * nScreenWidth + nFieldWidth + 6], 38, L"For source code and more information:");
+		swprintf_s(&screen[13 * nScreenWidth + nFieldWidth + 6], 32, L"Github.com/CMDR-JohnAlex/Tetris");
 
 		// Animate Line Completion
 		if (!vLines.empty())
@@ -289,8 +324,8 @@ int main(int argc, char* argv[])
 	std::cout << "   | |  __/ |_| |  | \\__ \\\n";
 	std::cout << "   |_|\\___|\\__|_|  |_|___/ Console Clone\n";
 	std::cout << "==========================================\n\n";
-	std::cout << "         GAME OVER!!!\n";
-	std::cout << "         Score: " << nScore << '\n';
+	std::cout << "              GAME  OVER!\n";
+	std::cout << "              Score: " << nScore << '\n' << '\n';
 	std::this_thread::sleep_for(std::chrono::milliseconds(1500)); // Delay a bit
 	system("pause");
 	return 0;
