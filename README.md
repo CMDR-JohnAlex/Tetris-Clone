@@ -1,18 +1,18 @@
 # Tetris Console Clone
 
-![GitHub Repo stars](https://img.shields.io/github/stars/CMDR-JohnAlex/Tetris Console Clone?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/CMDR-JohnAlex/Tetris Console Clone?style=social)
+![GitHub Repo stars](https://img.shields.io/github/stars/CMDR-JohnAlex/Tetris-Clone?style=social)
+![GitHub watchers](https://img.shields.io/github/watchers/CMDR-JohnAlex/Tetris-Clone?style=social)
 
-![GitHub top language](https://img.shields.io/github/languages/top/CMDR-JohnAlex/Tetris Console Clone)
-![Lines of code](https://img.shields.io/tokei/lines/github/CMDR-JohnAlex/Tetris Console Clone)
-![GitHub repo size](https://img.shields.io/github/repo-size/CMDR-JohnAlex/Tetris Console Clone)
+![GitHub top language](https://img.shields.io/github/languages/top/CMDR-JohnAlex/Tetris-Clone)
+![Lines of code](https://img.shields.io/tokei/lines/github/CMDR-JohnAlex/Tetris-Clone)
+![GitHub repo size](https://img.shields.io/github/repo-size/CMDR-JohnAlex/Tetris-Clone)
 
-![GitHub issues](https://img.shields.io/github/issues/CMDR-JohnAlex/Tetris Console Clone)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/CMDR-JohnAlex/Tetris Console Clone)
-![GitHub](https://img.shields.io/github/license/CMDR-JohnAlex/Tetris Console Clone)
+![GitHub issues](https://img.shields.io/github/issues/CMDR-JohnAlex/Tetris-Clone)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/CMDR-JohnAlex/Tetris-Clone)
+![GitHub](https://img.shields.io/github/license/CMDR-JohnAlex/Tetris-Clone)
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/CMDR-JohnAlex/Tetris Console Clone)
-![GitHub all releases](https://img.shields.io/github/downloads/CMDR-JohnAlex/Tetris Console Clone/total)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/CMDR-JohnAlex/Tetris-Clone)
+![GitHub all releases](https://img.shields.io/github/downloads/CMDR-JohnAlex/Tetris-Clone/total)
 
 ## About Tetris Console Clone
 
@@ -44,7 +44,7 @@ Our Documentation can be found in the code's //comments.
 
 ## Bug Reporting
 
-You can report bugs in the [issues tab](https://github.com/CMDR-JohnAlex/Tetris Console Clone/issues) in the github repository.
+You can report bugs in the [issues tab](https://github.com/CMDR-JohnAlex/Tetris-Clone/issues) in the github repository.
 
 ## Contributing
 
