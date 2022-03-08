@@ -1,4 +1,25 @@
-# Changelog
+﻿# Changelog
+
+## [0.2.1]
+
+### Added
+* Added more comment documentation
+
+### Fixed
+* Couldn't fix `■` showing up as `þ` ONLY for the falling pieces while pieces on the field stay as `■`. So changed back to letters
+
+-------------------------------------------------------------------------------------------------------------
+
+## [0.2.0]
+
+### Added
+* Added more comment documentation
+* Added credits in game
+
+### Changed
+* Changed the rotation function
+
+-------------------------------------------------------------------------------------------------------------
 
 ## [0.1.1]
 
