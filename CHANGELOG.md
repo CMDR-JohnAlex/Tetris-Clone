@@ -42,10 +42,10 @@
 * Added ANSI.md
 * Added AUTHORS.md
 * Added CHANGELOG.md
-* Added Tetris Console Clone.sln
-* Added Tetris Console Clone.vcxproj
-* Added Tetris Console Clone.vcxproj.filters
-* Added Tetris Console Clone.vcxproj.user
+* Added Tetris.sln
+* Added Tetris.vcxproj
+* Added Tetris.vcxproj.filters
+* Added Tetris.vcxproj.user
 * Added LICENSE
 * Added README.md
 
